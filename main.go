@@ -22,17 +22,12 @@ func init() {
 }
 
 type Game struct {
-	keys []ebiten.Key
-}
-
-func (g *Game) Update() error {
-	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
-	return nil
 }
 
 var posX *float64
 var posY *float64
 var rot *int
+var moveSpeed float64 = 2
 
 func moveShip(rotation int, positionY float64, positionX float64) {
 	*rot = rotation
@@ -40,40 +35,53 @@ func moveShip(rotation int, positionY float64, positionX float64) {
 	*posX = positionX
 }
 
-func (g *Game) Draw(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
-	for _, p := range g.keys {
+func verifyShipMovement(keys *[]ebiten.Key) {
+	for _, p := range *keys {
 		_, ok := keyboard.KeyRect(p)
 
-		if ok && p == ebiten.KeyArrowDown {
+		if !ok {
+			continue
+		}
+
+		if p == ebiten.KeyArrowDown {
 			if *rot == 0 {
 				*posX += float64(img.Bounds().Max.X)
 			}
-			moveShip(180, *posY+5, *posX)
+			moveShip(180, *posY+moveSpeed, *posX)
 		}
 
-		if ok && p == ebiten.KeyArrowRight {
+		if p == ebiten.KeyArrowRight {
 			if *rot == -90 {
 				*posY -= float64(img.Bounds().Max.Y)
 			}
-			moveShip(90, *posY, *posX+5)
+			moveShip(90, *posY, *posX+moveSpeed)
 		}
 
-		if ok && p == ebiten.KeyArrowLeft {
+		if p == ebiten.KeyArrowLeft {
 			if *rot == 90 {
 				*posY += float64(img.Bounds().Max.Y)
 			}
-			moveShip(-90, *posY, *posX-5)
+			moveShip(-90, *posY, *posX-moveSpeed)
 		}
 
-		if ok && p == ebiten.KeyArrowUp {
+		if p == ebiten.KeyArrowUp {
 			if *rot == 180 {
 				*posX -= float64(img.Bounds().Max.X)
 			}
-			moveShip(0, *posY-5, *posX)
+			moveShip(0, *posY-moveSpeed, *posX)
 		}
 	}
+}
 
+func (g *Game) Update() error {
+	var keys []ebiten.Key
+	keys = inpututil.AppendPressedKeys(keys[:0])
+	verifyShipMovement(&keys)
+	return nil
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Rotate(float64(*rot%360) * 2 * math.Pi / 360)
 	op.GeoM.Translate(*posX, *posY)
 	screen.DrawImage(img, op)
