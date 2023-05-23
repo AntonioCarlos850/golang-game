@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	_ "image/png"
 	"log"
 	"math"
@@ -30,6 +31,7 @@ var rot *int = new(int)
 var moveSpeed float64 = 4
 var scrWidth int = 640
 var scrHeight int = 480
+var boost int = 100
 
 func moveShip(rotation int, positionY float64, positionX float64) {
 	if positionY < float64(scrHeight) && positionY > 0 {
@@ -44,11 +46,23 @@ func moveShip(rotation int, positionY float64, positionX float64) {
 }
 
 func verifyShipMovement(keys *[]ebiten.Key) {
+	var space bool = false
 	for _, p := range *keys {
 		_, ok := keyboard.KeyRect(p)
 
 		if !ok {
 			continue
+		}
+
+		if p == ebiten.KeySpace {
+			if boost < 4 {
+				continue
+			}
+
+			space = true
+			boost = boost - 4
+			moveSpeed = 6
+			moveShip(*rot, *posY, *posX)
 		}
 
 		if p == ebiten.KeyArrowDown {
@@ -79,6 +93,14 @@ func verifyShipMovement(keys *[]ebiten.Key) {
 			moveShip(0, *posY-moveSpeed, *posX)
 		}
 	}
+
+	if space == false {
+		if boost < 100 {
+			boost++
+		}
+
+		moveSpeed = 4
+	}
 }
 
 func (g *Game) Update() error {
@@ -93,6 +115,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	op.GeoM.Rotate(float64(*rot%360) * 2 * math.Pi / 360)
 	op.GeoM.Translate(*posX, *posY)
 	screen.DrawImage(img, op)
+
+	ebitenutil.DebugPrint(screen, fmt.Sprint("Boost: ", boost))
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
