@@ -24,15 +24,23 @@ func init() {
 type Game struct {
 }
 
-var posX *float64
-var posY *float64
-var rot *int
-var moveSpeed float64 = 2
+var posX *float64 = new(float64)
+var posY *float64 = new(float64)
+var rot *int = new(int)
+var moveSpeed float64 = 4
+var scrWidth int = 640
+var scrHeight int = 480
 
 func moveShip(rotation int, positionY float64, positionX float64) {
+	if positionY < float64(scrHeight) && positionY > 0 {
+		*posY = positionY
+	}
+
+	if positionX < float64(scrWidth) && positionX > 0 {
+		*posX = positionX
+	}
+
 	*rot = rotation
-	*posY = positionY
-	*posX = positionX
 }
 
 func verifyShipMovement(keys *[]ebiten.Key) {
@@ -88,19 +96,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 320, 240
+	return outsideWidth, outsideHeight
 }
 
 func main() {
-	posX = new(float64)
-	posY = new(float64)
-	rot = new(int)
-
 	*rot = 0
 	*posX = 10
 	*posY = 10
 
-	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowSize(scrWidth, scrHeight)
 	// ebiten.SetWindowSize(ebiten.ScreenSizeInFullscreen())
 
 	ebiten.SetWindowTitle("Hello, World!")
