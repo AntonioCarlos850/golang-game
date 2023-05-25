@@ -57,9 +57,7 @@ func verifyShipMovement(keys *[]ebiten.Key) {
 		}
 
 		if p == ebiten.KeySpace {
-			if boost < 20 {
-				boostTime = time.Now()
-			}
+			boostTime = time.Now()
 
 			if boost < 2 {
 				continue
@@ -101,7 +99,7 @@ func verifyShipMovement(keys *[]ebiten.Key) {
 	}
 
 	if space == false {
-		if boost < 100 && time.Now().Sub(boostTime) > 3*time.Second {
+		if boost < 100 && time.Now().Sub(boostTime) > 2*time.Second {
 			boost++
 		}
 
