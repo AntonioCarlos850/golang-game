@@ -5,6 +5,7 @@ import (
 	_ "image/png"
 	"log"
 	"math"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -32,6 +33,7 @@ var moveSpeed float64 = 4
 var scrWidth int = 640
 var scrHeight int = 480
 var boost int = 100
+var boostTime time.Time
 
 func moveShip(rotation int, positionY float64, positionX float64) {
 	if positionY < float64(scrHeight) && positionY > 0 {
@@ -55,12 +57,16 @@ func verifyShipMovement(keys *[]ebiten.Key) {
 		}
 
 		if p == ebiten.KeySpace {
-			if boost < 4 {
+			if boost < 20 {
+				boostTime = time.Now()
+			}
+
+			if boost < 2 {
 				continue
 			}
 
 			space = true
-			boost = boost - 4
+			boost--
 			moveSpeed = 6
 			moveShip(*rot, *posY, *posX)
 		}
@@ -95,7 +101,7 @@ func verifyShipMovement(keys *[]ebiten.Key) {
 	}
 
 	if space == false {
-		if boost < 100 {
+		if boost < 100 && time.Now().Sub(boostTime) > 3*time.Second {
 			boost++
 		}
 
