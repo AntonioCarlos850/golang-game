@@ -115,12 +115,18 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	var recharge float64 = 0
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Rotate(float64(*rot%360) * 2 * math.Pi / 360)
 	op.GeoM.Translate(*posX, *posY)
 	screen.DrawImage(img, op)
 
-	ebitenutil.DebugPrint(screen, fmt.Sprint("Boost: ", boost))
+	if time.Now().Sub(boostTime) < 2*time.Second {
+		recharge = 2 - time.Now().Sub(boostTime).Seconds()
+	}
+
+	ebitenutil.DebugPrint(screen, fmt.Sprint("Boost qtd: ", boost))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprint("Boost recharge time: ", fmt.Sprintf("%.2f", recharge)), 0, 10)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
